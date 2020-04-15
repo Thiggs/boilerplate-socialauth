@@ -64,6 +64,13 @@ io.on('connection', socket => {
   io.emit('user count', currentUsers);
   console.log('A user has connected');
 });
+
+io.on('disconnect', socket => {
+  socket.on('disconnect', () => { console.log('disconnect')})
+  --currentUsers;
+  io.emit('user count', currentUsers);
+  console.log('A user has disconnected');
+});
       
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
