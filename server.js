@@ -7,8 +7,11 @@ const session         = require('express-session');
 const mongo           = require('mongodb').MongoClient;
 const passport        = require('passport');
 const GitHubStrategy  = require('passport-github').Strategy;
-const http            = require('http')
+const http            = require('http');
 const io              = require('socket.io')(http);
+var passportSocketIo  = require('passport.socketio');
+const cookieParser    = require('cookie-parser');
+const sessionStore    = new session.MemoryStore();
 
 const app = express();
 
@@ -18,7 +21,14 @@ app.use('/public', express.static(process.cwd() + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.set('view engine', 'pug')
+app.set('view engine', 'pug');
+
+io.use(passportSocketIo.authorize({
+  cookieParser: cookieParser,
+  key:          'express.sid',
+  secret:       process.env.SESSION_SECRET,
+  store:        sessionStore
+}));
 
 mongo.connect(process.env.DATABASE, (err, db) => {
     if(err) {
@@ -62,7 +72,7 @@ mongo.connect(process.env.DATABASE, (err, db) => {
 io.on('connection', socket => {
   ++currentUsers;
   io.emit('user count', currentUsers);
-  console.log('A user has connected');
+  console.log('user ' + socket.request.user.name + ' connected');
 });
 
 io.on('disconnect', socket => {
