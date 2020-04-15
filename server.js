@@ -73,8 +73,12 @@ io.on('connection', socket => {
   ++currentUsers;
   io.emit('user', {name: socket.request.user.name, currentUsers, connected: true});
   console.log('user ' + socket.request.user.name + ' connected');
+   socket.on('chat message', (message) => {
+        io.emit('chat message', {name: socket.request.user.name, message});
+      });
 });
-
+      
+      
 io.on('disconnect', socket => {
   socket.on('disconnect', () => { console.log('disconnect')})
   --currentUsers;

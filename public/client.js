@@ -14,4 +14,14 @@ $( document ).ready(function() {
     }
     $('#messages').append($('<li>').html('<b>'+ message +'<\/b>'));
   });
+    $('form').submit(function(){
+      var messageToSend = $('#m').val();
+      socket.emit('chat message', messageToSend);
+      $('#m').val('');
+      return false;
+    });
+      socket.on('chat message', function(data){
+      $('#messages').append($('<li>').text(data.name+': '+data.message));
+    });
   });
+  
